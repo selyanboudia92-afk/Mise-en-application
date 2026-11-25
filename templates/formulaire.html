@@ -2,16 +2,27 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulaire d'enregistrement d'un nouveau client</title>
+    <title>Enregistrer un client</title>
 </head>
 <body>
-    <h1>Enregistrer un nouveau client</h1>
-    <form action="./enregistrer_client" method="POST">
+    <h1>Enregistrer un client</h1>
+
+    <!-- 1. BLOC D'ERREUR : juste après la balise fermante </h1> -->
+    {% if erreur %}
+        <p style="color: red;">{{ erreur }}</p>
+    {% endif %}
+
+    <form action="/enregistrer_client" method="post">
         <label for="nom">Nom :</label>
         <input type="text" id="nom" name="nom" required><br><br>
+
         <label for="prenom">Prénom :</label>
         <input type="text" id="prenom" name="prenom" required><br><br>
+
+        <!-- 2. CHAMP ADRESSE : juste après le champ prénom et avant le bouton -->
+        <label for="adresse">Adresse :</label>
+        <input type="text" id="adresse" name="adresse" required><br><br>
+
         <button type="submit">Enregistrer</button>
     </form>
 </body>
