@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Recherche</title>
+</head>
+<body>
+    <h1>Rechercher un client</h1>
+    <form action="/recherche" method="get">
+        <input type="text" name="q" value="{{ q }}" placeholder="Nom ou prénom...">
+        <button type="submit">Rechercher</button>
+    </form>
+
+    {% if q %}
+        <p>{{ data|length }} résultat(s) pour « {{ q }} »</p>
+        <ul>
+        {% for row in data %}
+            <li><a href="/fiche_client/{{ row['id'] }}">{{ row['nom'] }} {{ row['prenom'] }}</a></li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>
