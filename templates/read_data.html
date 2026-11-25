@@ -3,6 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Clients</title>
+    <head>
+    <meta charset="UTF-8">
+    <title>Clients</title>
+    <style>
+        table { border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 6px 12px; }
+        th { background: #f0f0f0; }
+    </style>
+</head>
+    
 </head>
 <body>
     <h1>Liste des Clients</h1>
@@ -19,7 +29,7 @@
         <tr>
             <td>{{ row['id'] }}</td>
             <td>{{ row['created'] }}</td>
-            <td>{{ row['nom'] }}</td>
+            <td><a href="/fiche_client/{{ row['id'] }}">{{ row['nom'] }}</a></td>
             <td>{{ row['prenom'] }}</td>
             <td>{{ row['adresse'] }}</td>
         </tr>
