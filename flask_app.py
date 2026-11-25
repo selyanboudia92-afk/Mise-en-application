@@ -81,7 +81,7 @@ def Readfiche(post_id):
 def ReadBDD():
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM clients;')
+    cursor.execute('SELECT * FROM clients ORDER BY nom;')
     data = cursor.fetchall()
     conn.close()
     return render_template('read_data.html', data=data)
