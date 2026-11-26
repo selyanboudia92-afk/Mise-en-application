@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titre %}Statistiques{% endblock %}
+{% block contenu %}
+    <h1>Commandes par client</h1>
+    <table>
+        <tr><th>Client</th><th>Nombre de commandes</th><th>Total dépensé</th></tr>
+        {% for s in stats %}
+        <tr>
+            <td><a href="/fiche_client/{{ s['id'] }}">{{ s['nom'] }} {{ s['prenom'] }}</a></td>
+            <td>{{ s['nb_commandes'] }}</td>
+            <td>{{ '%.2f'|format(s['total']) }} €</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

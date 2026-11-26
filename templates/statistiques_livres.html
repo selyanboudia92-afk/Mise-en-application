@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block titre %}Statistiques des livres{% endblock %}
+{% block contenu %}
+    <h1>📊 Statistiques de la bibliothèque</h1>
+    <h2>Les 5 livres les plus empruntés</h2>
+    <table>
+        <tr><th>Livre</th><th>Auteur</th><th>Emprunts</th></tr>
+        {% for t in top %}<tr><td>{{ t['titre'] }}</td><td>{{ t['auteur'] }}</td><td>{{ t['nb'] }}</td></tr>{% endfor %}
+    </table>
+    <h2>Emprunts par genre</h2>
+    <table>
+        <tr><th>Genre</th><th>Emprunts</th></tr>
+        {% for g in genres %}<tr><td>{{ g['genre'] }}</td><td>{{ g['nb'] }}</td></tr>{% endfor %}
+    </table>
+    <h2>Emprunts par mois</h2>
+    <table>
+        <tr><th>Mois</th><th>Emprunts</th></tr>
+        {% for m in par_mois %}<tr><td>{{ m['mois'] }}</td><td>{{ m['nb'] }}</td></tr>{% endfor %}
+    </table>
+{% endblock %}

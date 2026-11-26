@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block titre %}Utilisateurs{% endblock %}
+{% block contenu %}
+    <h1>🔑 Gestion des utilisateurs</h1>
+    <table>
+        <tr><th>ID</th><th>Login</th><th>Nom</th><th>Prénom</th><th>Rôle</th><th>Emprunts en cours</th><th></th></tr>
+        {% for u in utilisateurs %}
+        <tr>
+            <td>{{ u['id'] }}</td>
+            <td>{{ u['login'] }}</td>
+            <td>{{ u['nom'] }}</td>
+            <td>{{ u['prenom'] }}</td>
+            <td>{{ u['role'] }}</td>
+            <td>{{ u['nb_en_cours'] }}</td>
+            <td>
+                {% if u['id'] != session.get('utilisateur_id') %}
+                <form class="inline" action="/utilisateurs/{{ u['id'] }}/supprimer" method="post"
+                      onsubmit="return confirm('Supprimer cet utilisateur ?');">
+                    <button type="submit">🗑️ Supprimer</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Créer un compte</h2>
+    {% if erreur %}<p class="erreur">{{ erreur }}</p>{% endif %}
+    <form method="post">
+        <label>Login :</label> <input type="text" name="login" required><br><br>
+        <label>Nom :</label> <input type="text" name="nom" required><br><br>
+        <label>Prénom :</label> <input type="text" name="prenom" required><br><br>
+        <label>Mot de passe :</label> <input type="password" name="mot_de_passe" minlength="4" required><br><br>
+        <label>Rôle :</label>
+        <select name="role"><option value="user">Utilisateur</option><option value="admin">Administrateur</option></select><br><br>
+        <button type="submit">Créer</button>
+    </form>
+{% endblock %}

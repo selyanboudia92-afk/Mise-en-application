@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block titre %}Catalogue{% endblock %}
+{% block contenu %}
+    <h1>📚 Catalogue de la bibliothèque</h1>
+    <form action="/livres" method="get">
+        <input type="text" name="q" value="{{ q }}" placeholder="Titre ou auteur...">
+        <label style="min-width:0"><input type="checkbox" name="disponibles" value="1" {% if dispo %}checked{% endif %}> Disponibles uniquement</label>
+        <button type="submit">Rechercher</button>
+        {% if q or dispo %}<a href="/livres">Tout afficher</a>{% endif %}
+    </form>
+    {% if session.get('role') == 'admin' %}<p><a href="/livres/ajouter">➕ Ajouter un livre</a></p>{% endif %}
+
+    <p>{{ livres|length }} livre(s){% if q %} pour « {{ q }} »{% endif %}.</p>
+    <table>
+        <tr><th>Titre</th><th>Auteur</th><th>Année</th><th>Genre</th><th>Stock</th><th>Disponibles</th><th>Actions</th></tr>
+        {% for l in livres %}
+        <tr>
+            <td><strong>{{ l['titre'] }}</strong></td>
+            <td>{{ l['auteur'] }}</td>
+            <td>{{ l['annee'] or '-' }}</td>
+            <td>{{ l['genre'] or '-' }}</td>
+            <td>{{ l['nb_exemplaires'] }}</td>
+            <td class="{{ 'ok' if l['nb_disponibles'] > 0 else 'ko' }}">
+                {{ l['nb_disponibles'] }} {{ '✅' if l['nb_disponibles'] > 0 else '❌' }}
+            </td>
+            <td>
+                {% if l['nb_disponibles'] > 0 %}
+                    <form class="inline" action="/livres/{{ l['id'] }}/emprunter" method="post">
+                        <button type="submit">📖 Emprunter</button>
+                    </form>
+                {% endif %}
+                {% if session.get('role') == 'admin' %}
+                    <a href="/livres/{{ l['id'] }}/modifier">✏️ Modifier</a>
+                    <form class="inline" action="/livres/{{ l['id'] }}/supprimer" method="post"
+                          onsubmit="return confirm('Supprimer ce livre ?');">
+                        <button type="submit">🗑️</button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

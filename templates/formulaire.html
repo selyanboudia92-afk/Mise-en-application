@@ -1,17 +1,10 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Enregistrer un client</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block titre %}Enregistrer un client{% endblock %}
+{% block contenu %}
     <h1>Enregistrer un client</h1>
-
-    <!-- 1. BLOC D'ERREUR : juste après la balise fermante </h1> -->
     {% if erreur %}
-        <p style="color: red;">{{ erreur }}</p>
+        <p class="erreur">{{ erreur }}</p>
     {% endif %}
-
     <form action="/enregistrer_client" method="post">
         <label for="nom">Nom :</label>
         <input type="text" id="nom" name="nom" required><br><br>
@@ -19,11 +12,12 @@
         <label for="prenom">Prénom :</label>
         <input type="text" id="prenom" name="prenom" required><br><br>
 
-        <!-- 2. CHAMP ADRESSE : juste après le champ prénom et avant le bouton -->
         <label for="adresse">Adresse :</label>
         <input type="text" id="adresse" name="adresse" required><br><br>
 
+        <label for="telephone">Téléphone (facultatif) :</label>
+        <input type="tel" id="telephone" name="telephone"><br><br>
+
         <button type="submit">Enregistrer</button>
     </form>
-</body>
-</html>
+{% endblock %}

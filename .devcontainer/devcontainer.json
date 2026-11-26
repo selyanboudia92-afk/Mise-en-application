@@ -1,0 +1,11 @@
+{
+  "name": "Atelier Flask + SQLite",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "postCreateCommand": "pip install -r requirements.txt && sudo apt-get update && sudo apt-get install -y sqlite3 && python3 create_db.py",
+  "postAttachCommand": "echo 'Lancer le site : flask --app flask_app run --debug'",
+  "forwardPorts": [5000],
+  "portsAttributes": { "5000": { "label": "Site Flask", "onAutoForward": "openBrowser" } },
+  "customizations": {
+    "vscode": { "extensions": ["ms-python.python", "qwtel.sqlite-viewer"] }
+  }
+}

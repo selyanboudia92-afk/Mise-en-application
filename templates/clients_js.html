@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titre %}Clients (API){% endblock %}
+{% block contenu %}
+    <h1>Clients chargés par l'API</h1>
+    <p>Cette page ne contient aucune donnée au départ : le JavaScript appelle <code>/api/clients</code> avec <code>fetch</code>.</p>
+    <input type="text" id="q" placeholder="Filtrer (nom ou prénom)...">
+    <ul id="liste"><li>Chargement...</li></ul>
+    <script>
+        async function charger() {
+            const q = document.getElementById('q').value;
+            const reponse = await fetch('/api/clients?q=' + encodeURIComponent(q));
+            const clients = await reponse.json();
+            const liste = document.getElementById('liste');
+            liste.innerHTML = '';
+            for (const c of clients) {
+                const li = document.createElement('li');
+                li.textContent = c.nom + ' ' + c.prenom + ' — ' + c.adresse;  // textContent : pas d'injection HTML
+                liste.appendChild(li);
+            }
+            if (clients.length === 0) liste.innerHTML = '<li>Aucun client.</li>';
+        }
+        document.getElementById('q').addEventListener('input', charger);
+        charger();
+    </script>
+{% endblock %}
