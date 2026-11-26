@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block titre %}{{ client['nom'] }} {{ client['prenom'] }}{% endblock %}
+{% block contenu %}
+    <h1>{{ client['prenom'] }} {{ client['nom'] }}</h1>
+    <ul>
+        <li><strong>N° client :</strong> {{ client['id'] }}</li>
+        <li><strong>Adresse :</strong> {{ client['adresse'] }}</li>
+        <li><strong>Téléphone :</strong> {{ client['telephone'] or '-' }}</li>
+        <li><strong>Client depuis le :</strong> {{ client['created'] }}</li>
+    </ul>
+    {% if session.get('role') == 'admin' %}
+        <p><a href="/modifier_client/{{ client['id'] }}">✏️ Modifier ce client</a></p>
+    {% endif %}
+
+    <h2>Commandes ({{ commandes|length }})</h2>
+    {% if commandes %}
+        <table>
+            <tr><th>N°</th><th>Date</th><th>Produit</th><th>Montant</th></tr>
+            {% for c in commandes %}
+            <tr><td>{{ c['id'] }}</td><td>{{ c['date_commande'] }}</td><td>{{ c['produit'] }}</td><td>{{ '%.2f'|format(c['montant']) }} €</td></tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Aucune commande pour ce client.</p>
+    {% endif %}
+
+    {% if session.get('role') == 'admin' %}
+        <h3>Nouvelle commande</h3>
+        <form action="/fiche_client/{{ client['id'] }}/commandes" method="post">
+            <input type="text" name="produit" placeholder="Produit" required>
+            <input type="number" name="montant" placeholder="Montant" step="0.01" min="0" required>
+            <button type="submit">Ajouter</button>
+        </form>
+    {% endif %}
+    <p><a href="/consultation/">⬅️ Retour à la liste</a></p>
+{% endblock %}

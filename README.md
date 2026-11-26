@@ -1,3 +1,145 @@
+# 📚 Mon application : clients + bibliothèque (Flask + SQLite)
+
+> Rendu de l'atelier : exercices 1 à 9 réalisés sur la gestion des clients, puis **projet bibliothèque** (séquence 6) dans le même dépôt. Les réponses aux questions sont dans [`CARNET.md`](CARNET.md). Les consignes d'origine de l'atelier sont conservées plus bas.
+
+### 🔑 Comptes de test
+
+| Rôle | Login | Mot de passe |
+|---|---|---|
+| Administrateur | `admin` | `password` |
+| Utilisateur | `user` | `12345` |
+| Utilisateur (a un livre en retard) | `user2` | `12345` |
+
+Les mots de passe sont stockés **hachés** (`werkzeug.security`, scrypt) dans la table `utilisateurs`.
+
+### ▶️ Lancer l'application
+
+**Dans GitHub Codespaces** : *Code → Codespaces → Create codespace*. Le fichier `.devcontainer/devcontainer.json` installe Flask et `sqlite3` et crée la base automatiquement. Ensuite :
+
+```bash
+flask --app flask_app run --debug
+```
+
+**En local ou sur PythonAnywhere** (console Bash, dans `~/mysite`) :
+
+```bash
+pip install -r requirements.txt
+python3 create_db.py
+```
+
+**Mettre à jour une base existante sans perdre les données** (production) : appliquer les migrations puis ajouter les comptes de test :
+
+```bash
+for f in migrations/*.sql; do sqlite3 database.db < "$f"; done
+python3 create_db.py --comptes
+```
+
+### ✅ Fonctionnalités
+
+| # | Fonctionnalité | État |
+|---|---|---|
+| F1 | Ajouter, modifier, supprimer un livre (admin) | ✅ |
+| F2 | Gestion du stock (`nb_exemplaires`, impossible de descendre sous le nombre de livres empruntés) | ✅ |
+| F3 | Recherche titre / auteur, filtre « disponibles uniquement », disponibilité calculée | ✅ |
+| F4 | Emprunter un livre disponible (retour prévu à 21 jours) | ✅ |
+| F5 | Rendre un livre (l'utilisateur, ou l'admin pour n'importe quel emprunt) | ✅ |
+| F6 | « Mes emprunts » : en cours + historique | ✅ |
+| F7 | Gestion des utilisateurs : créer, lister, supprimer (admin) | ✅ |
+| F8 | Contrôle d'accès visiteur / user / admin (302 vers la connexion, 403 si rôle insuffisant) | ✅ |
+| F9 | API JSON des livres avec disponibilité | ✅ |
+| R1–R5 | Règles de gestion : message clair + code `409`/`400`/`403`, jamais d'erreur 500 | ✅ |
+| Bonus | Retards (page admin + bandeau d'alerte), statistiques (top 5, par genre, par mois), API d'emprunt / retour, menu commun (`base.html`) | ✅ |
+| Non fait | Réservations, recommandations, graphiques Chart.js | ❌ |
+
+Exercices sur les clients : recherche avec tri sécurisé (liste blanche), CRUD complet, téléphone (ex. 6 + `migrations/`), commandes avec `JOIN` / `GROUP BY` et clés étrangères (ex. 7), rôles (ex. 8), API JSON + page `fetch` (ex. 9), ainsi que tous les défis.
+
+### 🗄️ Schéma de la base
+
+```mermaid
+erDiagram
+    CLIENTS ||--o{ COMMANDES : "passe"
+    UTILISATEURS ||--o{ EMPRUNTS : "effectue"
+    LIVRES ||--o{ EMPRUNTS : "fait l'objet de"
+    CLIENTS {
+        int id PK
+        timestamp created
+        text nom
+        text prenom
+        text adresse
+        text telephone
+    }
+    COMMANDES {
+        int id PK
+        int client_id FK
+        text produit
+        real montant
+        timestamp date_commande
+    }
+    UTILISATEURS {
+        int id PK
+        text login UK
+        text nom
+        text prenom
+        text mot_de_passe_hash
+        text role
+    }
+    LIVRES {
+        int id PK
+        text titre
+        text auteur
+        text isbn
+        int annee
+        text genre
+        int nb_exemplaires
+    }
+    EMPRUNTS {
+        int id PK
+        int livre_id FK
+        int utilisateur_id FK
+        timestamp date_emprunt
+        date date_retour_prevue
+        timestamp date_retour
+    }
+```
+
+Un emprunt **en cours** a `date_retour IS NULL`. La disponibilité est **calculée** : `nb_exemplaires - COUNT(emprunts en cours)`. Supprimer un livre (non emprunté) ou un utilisateur (sans emprunt en cours) supprime aussi son historique d'emprunts.
+
+### 🧭 Routes
+
+| Route | Méthode | Accès | Rôle |
+|---|---|---|---|
+| `/` | GET | tous | Accueil et menu |
+| `/authentification`, `/deconnexion` | GET/POST, GET | tous | Connexion / déconnexion |
+| `/livres?q=&disponibles=1` | GET | connecté | Catalogue, recherche, disponibilité |
+| `/livres/ajouter`, `/livres/<id>/modifier` | GET/POST | admin | Formulaire livre (R5) |
+| `/livres/<id>/supprimer` | POST | admin | Suppression (R3) |
+| `/livres/<id>/emprunter` | POST | connecté | Emprunt (R1, R2) |
+| `/emprunts/<id>/rendre` | POST | propriétaire ou admin | Retour |
+| `/mes_emprunts` | GET | connecté | Mes emprunts + historique |
+| `/utilisateurs`, `/utilisateurs/<id>/supprimer` | GET/POST, POST | admin | Gestion des comptes |
+| `/admin/emprunts?retards=1` | GET | admin | Emprunts en cours / en retard |
+| `/livres/statistiques` | GET | connecté | Statistiques |
+| `/consultation/`, `/fiche_client/<id>`, `/fiche_nom/<nom>`, `/recherche?q=&tri=` | GET | connecté | Clients |
+| `/enregistrer_client`, `/modifier_client/<id>` | GET/POST | admin | Clients |
+| `/supprimer_client/<id>`, `/fiche_client/<id>/commandes` | POST | admin | Clients / commandes |
+| `/commandes/`, `/statistiques/` | GET | connecté | Commandes (JOIN, GROUP BY) |
+| `/clients_js` | GET | tous | Liste des clients via `fetch` |
+
+### 🔌 API JSON
+
+| Méthode | Route | Accès | Réponse |
+|---|---|---|---|
+| GET | `/api/livres?q=&disponibles=1` | tous | Liste des livres avec `nb_disponibles` et `disponible` |
+| GET | `/api/livres/<id>` | tous | Un livre (404 si absent) |
+| GET | `/api/emprunts` | connecté | Mes emprunts en cours |
+| POST | `/api/emprunts` `{"livre_id": 3}` | connecté | 201, ou 409 (R1/R2), 400, 401 |
+| POST | `/api/emprunts/<id>/retour` | propriétaire ou admin | 200, 403, 404, 409 |
+| GET | `/api/clients?q=`, `/api/clients/<id>` | tous | Clients |
+| POST | `/api/clients` | admin | 201, 400, 401 |
+| DELETE | `/api/clients/<id>` | admin | 200, 401, 404, 409 |
+
+---
+
 # 🗄️ Atelier « Flask + SQLite » : construire une application avec une base de données
 
 Bienvenue ! 👋

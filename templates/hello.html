@@ -1,19 +1,30 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask + SQLite</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block contenu %}
     <h1>Hello from Flask Server ! 🚀</h1>
     <p>Votre application est en ligne. Voici les pages disponibles :</p>
+
+    <h3>📚 Bibliothèque</h3>
+    <ul>
+        <li><a href="/livres">/livres</a> : le catalogue, la recherche et l'emprunt de livres</li>
+        <li><a href="/mes_emprunts">/mes_emprunts</a> : mes emprunts en cours et rendre un livre</li>
+        <li><a href="/livres/statistiques">/livres/statistiques</a> : les livres les plus empruntés</li>
+        <li><a href="/utilisateurs">/utilisateurs</a> : gestion des comptes (admin)</li>
+        <li><a href="/admin/emprunts">/admin/emprunts</a> : emprunts en cours et retards (admin)</li>
+        <li><a href="/api/livres">/api/livres</a> : l'API JSON des livres</li>
+    </ul>
+
+    <h3>👥 Clients (exercices)</h3>
     <ul>
         <li><a href="/consultation/">/consultation/</a> : la liste des clients</li>
         <li><a href="/fiche_client/1">/fiche_client/1</a> : la fiche du client n°1</li>
-        <li><a href="/enregistrer_client">/enregistrer_client</a> : enregistrer un nouveau client</li>
+        <li><a href="/recherche">/recherche</a> : rechercher un client</li>
+        <li><a href="/enregistrer_client">/enregistrer_client</a> : enregistrer un nouveau client (admin)</li>
+        <li><a href="/commandes/">/commandes/</a> et <a href="/statistiques/">/statistiques/</a> : les commandes</li>
+        <li><a href="/api/clients">/api/clients</a> et <a href="/clients_js">/clients_js</a> : l'API JSON</li>
         <li><a href="/lecture">/lecture</a> : une page protégée</li>
-        <li><a href="/authentification">/authentification</a> : se connecter</li>
     </ul>
-</body>
-</html>
+
+    {% if not session.get('authentifie') %}
+        <p>👉 <a href="/authentification">Connectez-vous</a> : <code>admin</code> / <code>password</code> ou <code>user</code> / <code>12345</code>.</p>
+    {% endif %}
+{% endblock %}

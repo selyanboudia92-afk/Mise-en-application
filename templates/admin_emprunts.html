@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titre %}Emprunts en cours{% endblock %}
+{% block contenu %}
+    <h1>⏰ {{ 'Emprunts en retard' if seulement_retards else 'Emprunts en cours' }}</h1>
+    <p>
+        <a href="/admin/emprunts">Tous les emprunts en cours</a> ·
+        <a href="/admin/emprunts?retards=1">Seulement les retards</a>
+    </p>
+    <p>{{ emprunts|length }} emprunt(s).</p>
+    <table>
+        <tr><th>Livre</th><th>Lecteur</th><th>Emprunté le</th><th>Retour prévu</th><th></th></tr>
+        {% for e in emprunts %}
+        <tr class="{{ 'retard' if e['en_retard'] }}">
+            <td>{{ e['titre'] }}</td>
+            <td>{{ e['prenom'] }} {{ e['nom'] }} ({{ e['login'] }})</td>
+            <td>{{ e['date_emprunt'] }}</td>
+            <td>{{ e['date_retour_prevue'] }} {% if e['en_retard'] %}<span class="ko">en retard</span>{% endif %}</td>
+            <td>
+                <form class="inline" action="/emprunts/{{ e['id'] }}/rendre" method="post">
+                    <input type="hidden" name="retour" value="/admin/emprunts">
+                    <button type="submit">↩️ Marquer rendu</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
